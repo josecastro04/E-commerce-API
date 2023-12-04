@@ -18,4 +18,16 @@ var User = []Route{
 		Func:          controllers.ShowUserInfo,
 		Authorization: true,
 	},
+	{
+		URI:           "/update_password",
+		Method:        http.MethodPut,
+		Func:          controllers.UpdatePassword,
+		Authorization: true,
+	},
+	{
+		URI:           "/delete_user",
+		Method:        http.MethodDelete,
+		Func:          controllers.DeleteUser,
+		Authorization: true,
+	},
 }
