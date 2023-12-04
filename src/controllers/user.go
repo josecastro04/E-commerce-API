@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"api/src/authentication"
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
@@ -40,4 +41,31 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusCreated, "User created")
+}
+
+func ShowUserInfo(w http.ResponseWriter, r *http.Request) {
+	userID, err := authentication.ExtractUserID(r)
+
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.ConnectWithDatabase()
+
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	repository := repositories.NewRepositoryUser(db)
+
+	user, err := repository.SearchUserByID(userID)
+
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, user)
 }
