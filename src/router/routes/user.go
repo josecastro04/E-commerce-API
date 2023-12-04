@@ -12,4 +12,10 @@ var User = []Route{
 		Func:          controllers.CreateUser,
 		Authorization: false,
 	},
+	{
+		URI:           "/show_userinfo",
+		Method:        http.MethodGet,
+		Func:          controllers.ShowUserInfo,
+		Authorization: true,
+	},
 }
