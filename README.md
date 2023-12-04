@@ -15,4 +15,4 @@ func init(){
     secretKey := base64.StdEncoding.EncodeToString(key)
     fmt.Println(secretKey)
 }
-``
+```
