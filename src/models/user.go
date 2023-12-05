@@ -13,6 +13,7 @@ type User struct {
 	Name      string    `json:"Name"`
 	Email     string    `json:"Email"`
 	Password  string    `json:"Password"`
+	RoleType  string    `json:"RoleType"`
 	CreatedIn time.Time `json:"CreatedIn"`
 }
 
@@ -34,7 +35,9 @@ func (u *User) valid() error {
 
 	if u.Email == "" {
 		return errors.New("the email field cannot be blank and is required")
-	} else if err := checkmail.ValidateHost(u.Email); err != nil {
+	}
+
+	if err := checkmail.ValidateFormat(u.Email); err != nil {
 		return errors.New("the email needs to be valid")
 	}
 
@@ -49,7 +52,7 @@ func (u *User) format(stage string) error {
 	u.Name = strings.TrimSpace(u.Name)
 	u.Password = strings.TrimSpace(u.Password)
 
-	if stage == "signup" {
+	if stage == "sign" {
 		hash, err := security.GenerateHashFromPassword(u.Password)
 		if err != nil {
 			return err
