@@ -47,7 +47,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := authentication.CreateToken(userInfo.ID)
+	token, err := authentication.CreateToken(userInfo.ID, userInfo.RoleType)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
@@ -69,6 +69,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err = json.Unmarshal(bodyRequest, &user); err != nil {
 		responses.Erro(w, http.StatusBadRequest, err)
 		return
+	}
+
+	if err = user.Prepare("sign"); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if user.RoleType == "" {
+		user.RoleType = "user"
 	}
 
 	db, err := database.ConnectWithDatabase()
