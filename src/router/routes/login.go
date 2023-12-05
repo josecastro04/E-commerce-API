@@ -10,4 +10,5 @@ var Login = Route{
 	Method:        http.MethodPost,
 	Func:          controllers.LoginUser,
 	Authorization: false,
+	OnlyAdmin:     false,
 }
