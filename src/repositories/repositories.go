@@ -20,7 +20,7 @@ func (u *User) SearchUserByEmail(email string) (models.User, error) {
 	}
 	var user models.User
 	if row.Next() {
-		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedIn); err != nil {
+		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.RoleType, &user.CreatedIn); err != nil {
 			return models.User{}, err
 		}
 	}
@@ -28,13 +28,13 @@ func (u *User) SearchUserByEmail(email string) (models.User, error) {
 }
 
 func (u *User) InsertNewUser(user models.User) error {
-	statement, err := u.db.Prepare("insert into user (name, email, password) values(?, ?, ?)")
+	statement, err := u.db.Prepare("insert into user (name, email, password, roletype) values(?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(&user.Name, &user.Email, &user.Password); err != nil {
+	if _, err = statement.Exec(&user.Name, &user.Email, &user.Password, &user.RoleType); err != nil {
 		return err
 	}
 
@@ -50,7 +50,7 @@ func (u *User) SearchUserByID(userID uint64) (models.User, error) {
 
 	var user models.User
 	if row.Next() {
-		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedIn); err != nil {
+		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.RoleType, &user.CreatedIn); err != nil {
 			return models.User{}, err
 		}
 	}
