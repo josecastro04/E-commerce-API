@@ -12,16 +12,17 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func CreateToken(ID uint64) (string, error) {
+func CreateToken(ID uint64, roleType string) (string, error) {
 	permissions := jwt.MapClaims{}
 
 	permissions["authorized"] = true
 	permissions["exp"] = time.Now().Add(time.Hour * 6).Unix()
 	permissions["userId"] = ID
+	permissions["role"] = roleType
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, permissions)
 
-	return token.SignedString([]byte(config.SecretKey))
+	return token.SignedString(config.SecretKey)
 }
 
 func ValidateToken(r *http.Request) error {
@@ -75,4 +76,19 @@ func ExtractUserID(r *http.Request) (uint64, error) {
 	}
 
 	return 0, errors.New("invalid token")
+}
+
+func ExtractRoleFromToken(r *http.Request) (string, error) {
+	tokenString := extractToken(r)
+	token, err := jwt.Parse(tokenString, returnVerificationKey)
+
+	if err != nil {
+		return "", err
+	}
+
+	if permissions, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return fmt.Sprintf("%s", permissions["role"]), nil
+	}
+
+	return "", errors.New("Invalid token")
 }
