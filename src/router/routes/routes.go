@@ -24,7 +24,7 @@ func Config(router *mux.Router) *mux.Router {
 			if route.OnlyAdmin {
 				router.HandleFunc(route.URI, middlewares.Authenticate(middlewares.Authorize("admin", route.Func))).Methods(route.Method)
 			} else {
-				router.HandleFunc(route.URI, middlewares.Authenticate(middlewares.Authorize("user", route.Func))).Methods(route.Method)
+				router.HandleFunc(route.URI, middlewares.Authenticate(route.Func)).Methods(route.Method)
 			}
 		} else {
 			router.HandleFunc(route.URI, route.Func).Methods(route.Method)
