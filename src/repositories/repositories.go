@@ -34,7 +34,7 @@ func (u *User) InsertNewUser(user models.User) error {
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(&user.Name, &user.Email, &user.Password, &user.RoleType); err != nil {
+	if _, err = statement.Exec(&user.Username, &user.Email, &user.Password, &user.Name, &user.Phone, &user.RoleType); err != nil {
 		return err
 	}
 
@@ -50,7 +50,7 @@ func (u *User) SearchUserByID(userID uint64) (models.User, error) {
 
 	var user models.User
 	if row.Next() {
-		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.RoleType, &user.CreatedIn); err != nil {
+		if err = row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Phone, &user.RoleType, &user.CreatedIn); err != nil {
 			return models.User{}, err
 		}
 	}

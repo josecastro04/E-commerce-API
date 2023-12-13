@@ -10,9 +10,11 @@ import (
 
 type User struct {
 	ID        uint64    `json:"ID"`
-	Name      string    `json:"Name"`
+	Username  string    `json:"Username"`
 	Email     string    `json:"Email"`
 	Password  string    `json:"Password"`
+	Name      string    `json:"Name"`
+	Phone     string    `json:"Phone"`
 	RoleType  string    `json:"RoleType"`
 	CreatedIn time.Time `json:"CreatedIn"`
 }
@@ -50,7 +52,9 @@ func (u *User) valid() error {
 
 func (u *User) format(stage string) error {
 	u.Name = strings.TrimSpace(u.Name)
+	u.Username = strings.TrimSpace(u.Username)
 	u.Password = strings.TrimSpace(u.Password)
+	u.Phone = strings.TrimSpace(u.Phone)
 
 	if stage == "sign" {
 		hash, err := security.GenerateHashFromPassword(u.Password)
