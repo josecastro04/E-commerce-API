@@ -20,4 +20,25 @@ var Product = []Route{
 		Authorization: false,
 		OnlyAdmin:     false,
 	},
+	{
+		URI:           "/change_price/{productID}",
+		Method:        http.MethodPut,
+		Func:          controllers.ChangePrice,
+		Authorization: true,
+		OnlyAdmin:     true,
+	},
+	{
+		URI:           "/delete_product/{productID}",
+		Method:        http.MethodDelete,
+		Func:          controllers.DeleteProduct,
+		Authorization: true,
+		OnlyAdmin:     true,
+	},
+	{
+		URI:           "/update_product_image",
+		Method:        http.MethodPut,
+		Func:          controllers.UpdateImage,
+		Authorization: true,
+		OnlyAdmin:     true,
+	},
 }
