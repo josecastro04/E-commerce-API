@@ -18,6 +18,7 @@ func Config(router *mux.Router) *mux.Router {
 	routes := User
 	routes = append(routes, Login)
 	routes = append(routes, Product...)
+	routes = append(routes, Orders...)
 
 	for _, route := range routes {
 		if route.Authorization {
