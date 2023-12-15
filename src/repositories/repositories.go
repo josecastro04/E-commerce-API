@@ -20,7 +20,7 @@ func (u *User) SearchUserByEmail(email string) (models.User, error) {
 	}
 	var user models.User
 	if row.Next() {
-		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.RoleType, &user.CreatedIn); err != nil {
+		if err = row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Phone, &user.RoleType, &user.CreatedIn); err != nil {
 			return models.User{}, err
 		}
 	}
@@ -28,7 +28,7 @@ func (u *User) SearchUserByEmail(email string) (models.User, error) {
 }
 
 func (u *User) InsertNewUser(user models.User) error {
-	statement, err := u.db.Prepare("insert into user (name, email, password, roletype) values(?, ?, ?, ?)")
+	statement, err := u.db.Prepare("insert into user (username, email, password, name, phone, roletype) values(?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
