@@ -1,6 +1,3 @@
-
-
-
 drop table if exists order_item;
 drop table if exists orders;
 drop table if exists product_reviews;
@@ -12,7 +9,7 @@ create table user (
     id int primary key auto_increment,
     username varchar(50) not null unique,
     email varchar(50) not null unique,
-    password varchar(50) not null,
+    password varchar(100) not null,
     name varchar(255) not null,
     phone varchar(20),
     roletype varchar(20) not null,
