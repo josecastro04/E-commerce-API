@@ -100,3 +100,31 @@ func ShowOrder(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusOK, order)
 }
+
+func ShowAllOrders(w http.ResponseWriter, r *http.Request) {
+	db, err := database.ConnectWithDatabase()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	repository := repositories.NewRepositoryOrder(db)
+
+	orders, err := repository.ShowOrders()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	for i := 0; i < len(orders); i++ {
+		orderProducts, err := repository.SearchOrderItens(orders[i])
+		if err != nil {
+			responses.Erro(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		orders[i].OrderItems = append(orders[i].OrderItems, orderProducts.OrderItems...)
+	}
+
+	responses.JSON(w, http.StatusOK, orders)
+}

@@ -77,3 +77,23 @@ func (o *Order) SearchOrderItens(order models.Order) (models.Order, error) {
 	}
 	return order, nil
 }
+
+func (o *Order) ShowOrders() ([]models.Order, error) {
+	rows, err := o.db.Query("select * from orders")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orders []models.Order
+	for rows.Next() {
+		var order models.Order
+
+		if err = rows.Scan(&order.OrderID, &order.UserID, &order.Date, &order.Status); err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+
+	return orders, nil
+}
