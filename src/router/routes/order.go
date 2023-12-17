@@ -20,4 +20,11 @@ var Orders = []Route{
 		Authorization: true,
 		OnlyAdmin:     false,
 	},
+	{
+		URI:           "/show_orders",
+		Method:        http.MethodGet,
+		Func:          controllers.ShowAllOrders,
+		Authorization: true,
+		OnlyAdmin:     true,
+	},
 }
