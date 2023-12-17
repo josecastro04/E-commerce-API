@@ -66,6 +66,12 @@ func ShowOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	role, err := authentication.ExtractRoleFromToken(r)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
 	params := mux.Vars(r)
 	orderID, err := strconv.ParseUint(params["orderID"], 10, 64)
 	if err != nil {
@@ -87,12 +93,12 @@ func ShowOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if order.UserID != userID {
+	if order.UserID != userID && role != "admin" {
 		responses.Erro(w, http.StatusForbidden, errors.New("can't see this order"))
 		return
 	}
 
-	order, err = repository.SearchOrderItens(order)
+	err = repository.SearchOrderItens(&order)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
@@ -117,14 +123,74 @@ func ShowAllOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := 0; i < len(orders); i++ {
-		orderProducts, err := repository.SearchOrderItens(orders[i])
+		err := repository.SearchOrderItens(&orders[i])
 		if err != nil {
 			responses.Erro(w, http.StatusInternalServerError, err)
 			return
 		}
-
-		orders[i].OrderItems = append(orders[i].OrderItems, orderProducts.OrderItems...)
 	}
 
 	responses.JSON(w, http.StatusOK, orders)
+}
+
+func ShowUserOrders(w http.ResponseWriter, r *http.Request) {
+	userID, err := authentication.ExtractUserID(r)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.ConnectWithDatabase()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	repository := repositories.NewRepositoryOrder(db)
+
+	orders, err := repository.SearchOrderByUserID(userID)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	for i := 0; i < len(orders); i++ {
+		err := repository.SearchOrderItens(&orders[i])
+		if err != nil {
+			responses.Erro(w, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	responses.JSON(w, http.StatusOK, orders)
+}
+
+func ChangeOrderStatus(w http.ResponseWriter, r *http.Request) {
+	bodyRequest, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	var order models.Order
+
+	if err = json.Unmarshal(bodyRequest, &order); err != nil {
+		responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.ConnectWithDatabase()
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	repository := repositories.NewRepositoryOrder(db)
+
+	if err = repository.ChangeStatus(order); err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, "Updated")
 }
