@@ -27,4 +27,18 @@ var Orders = []Route{
 		Authorization: true,
 		OnlyAdmin:     true,
 	},
+	{
+		URI:           "/show_user_orders",
+		Method:        http.MethodGet,
+		Func:          controllers.ShowUserOrders,
+		Authorization: true,
+		OnlyAdmin:     false,
+	},
+	{
+		URI:           "/change_order_status",
+		Method:        http.MethodPut,
+		Func:          controllers.ChangeOrderStatus,
+		Authorization: true,
+		OnlyAdmin:     true,
+	},
 }
