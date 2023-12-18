@@ -4,9 +4,10 @@ drop table if exists product_reviews;
 drop table if exists user;
 drop table if exists product;
 drop table if exists images;
+drop table if exists address;
 
 create table user (
-    id int primary key auto_increment,
+    id varchar(75) primary key,
     username varchar(50) not null unique,
     email varchar(50) not null unique,
     password varchar(100) not null,
@@ -23,7 +24,7 @@ create table images(
 )ENGINE=INNODB;
 
 create table product (
-                         id int primary key auto_increment,
+                         id varchar(75) primary key,
                          name varchar(100) not null,
                          description text not null,
                          price float not null,
@@ -35,8 +36,8 @@ create table product (
 )ENGINE=INNODB;
 
 create table orders (
-    order_id int primary key not null,
-    user_id int not null,
+    order_id varchar(75) primary key not null,
+    user_id varchar(75) not null,
     date timestamp default current_timestamp(),
     status varchar(50),
     foreign key (user_id)
@@ -45,11 +46,11 @@ create table orders (
 )ENGINE=INNODB;
 
 create table order_item(
-    product_id int primary key not null,
+    product_id varchar(75) primary key not null,
     foreign key (product_id)
                        references product(id)
                        on delete cascade,
-    order_id int not null,
+    order_id varchar(75) not null,
     foreign key (order_id )
                        references orders(order_id)
                        on delete cascade,
@@ -59,11 +60,11 @@ create table order_item(
 
 create table product_reviews (
     review_id int primary key auto_increment,
-    product_id int not null,
+    product_id varchar(75) not null,
     foreign key (product_id)
     references product(id)
     on delete cascade,
-    user_id int not null,
+    user_id varchar(75) not null,
     foreign key (user_id)
     references user(id)
     on delete cascade,
@@ -71,4 +72,16 @@ create table product_reviews (
     stars int not null,
     date timestamp default current_timestamp()
 )ENGINE=INNODB;
+
+create table address(
+    user_id varchar(75) not null,
+    foreign key (user_id)
+                    references user(id)
+                    on delete cascade,
+    city varchar(50) not null,
+    country varchar(50) not null,
+    address varchar(200) not null,
+    postal_code varchar(20) not null,
+    state varchar(50)
+)
 
