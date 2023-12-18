@@ -5,14 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func CreateToken(ID uint64, roleType string) (string, error) {
+func CreateToken(ID string, roleType string) (string, error) {
 	permissions := jwt.MapClaims{}
 
 	permissions["authorized"] = true
@@ -58,24 +57,19 @@ func returnVerificationKey(token *jwt.Token) (interface{}, error) {
 	return config.SecretKey, nil
 }
 
-func ExtractUserID(r *http.Request) (uint64, error) {
+func ExtractUserID(r *http.Request) (string, error) {
 	tokenString := extractToken(r)
 	token, err := jwt.Parse(tokenString, returnVerificationKey)
 
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	if permissions, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		userID, err := strconv.ParseUint(fmt.Sprintf("%.0f", permissions["userId"]), 10, 64)
-		if err != nil {
-			return 0, err
-		}
-
-		return userID, nil
+		return fmt.Sprintf("%s", permissions["userId"]), nil
 	}
 
-	return 0, errors.New("invalid token")
+	return "", errors.New("invalid token")
 }
 
 func ExtractRoleFromToken(r *http.Request) (string, error) {

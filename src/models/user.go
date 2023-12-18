@@ -9,13 +9,14 @@ import (
 )
 
 type User struct {
-	ID        uint64    `json:"ID"`
+	ID        string    `json:"ID"`
 	Username  string    `json:"Username"`
 	Email     string    `json:"Email"`
 	Password  string    `json:"Password"`
 	Name      string    `json:"Name"`
 	Phone     string    `json:"Phone"`
 	RoleType  string    `json:"RoleType"`
+	Address   Address   `json:"Address"`
 	CreatedIn time.Time `json:"CreatedIn"`
 }
 
