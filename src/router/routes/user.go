@@ -34,4 +34,11 @@ var User = []Route{
 		Authorization: true,
 		OnlyAdmin:     false,
 	},
+	{
+		URI:           "/update_address",
+		Method:        http.MethodPost,
+		Func:          controllers.UpdateUserAddress,
+		Authorization: true,
+		OnlyAdmin:     false,
+	},
 }
