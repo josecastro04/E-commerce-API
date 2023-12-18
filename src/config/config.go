@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/joho/godotenv"
+	"github.com/stripe/stripe-go/v76"
 	"log"
 	"os"
 	"strconv"
@@ -29,4 +30,6 @@ func Load() {
 	StringConnection = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("USERNAME"), os.Getenv("PASSWORD"), os.Getenv("DATABASE"))
 
 	SecretKey = []byte(os.Getenv("SECRETKEY"))
+
+	stripe.Key = os.Getenv("STRIPE_KEY")
 }
