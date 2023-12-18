@@ -42,15 +42,29 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryOrder(db)
+	orderRepository := repositories.NewRepositoryOrder(db)
 
-	if err = repository.CreateNewOrder(order); err != nil {
+	if err = orderRepository.CreateNewOrder(order); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
+	productRepository := repositories.NewRepositoryProduct(db)
+
 	for _, orderProducts := range order.OrderItems {
-		if err = repository.InsertOrderProducts(order.OrderID, orderProducts); err != nil {
+		if err = orderRepository.InsertOrderProducts(order.OrderID, orderProducts); err != nil {
+			responses.Erro(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		if orderProducts.Product.Stock == orderProducts.Amount {
+			if err = UpdateProductAvailabilityStripe(orderProducts, false); err != nil {
+				responses.Erro(w, http.StatusInternalServerError, err)
+				return
+			}
+		}
+
+		if err = productRepository.DecrementProductStock(orderProducts); err != nil {
 			responses.Erro(w, http.StatusInternalServerError, err)
 			return
 		}
@@ -85,9 +99,9 @@ func ShowOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryOrder(db)
+	orderRepository := repositories.NewRepositoryOrder(db)
 
-	order, err := repository.SearchOrderByID(orderID)
+	order, err := orderRepository.SearchOrderByID(orderID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
@@ -98,7 +112,7 @@ func ShowOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = repository.SearchOrderItens(&order)
+	err = orderRepository.SearchOrderItens(&order)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
@@ -114,16 +128,16 @@ func ShowAllOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryOrder(db)
+	orderRepository := repositories.NewRepositoryOrder(db)
 
-	orders, err := repository.ShowOrders()
+	orders, err := orderRepository.ShowOrders()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	for i := 0; i < len(orders); i++ {
-		err := repository.SearchOrderItens(&orders[i])
+		err := orderRepository.SearchOrderItens(&orders[i])
 		if err != nil {
 			responses.Erro(w, http.StatusInternalServerError, err)
 			return
@@ -146,16 +160,16 @@ func ShowUserOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryOrder(db)
+	orderRepository := repositories.NewRepositoryOrder(db)
 
-	orders, err := repository.SearchOrderByUserID(userID)
+	orders, err := orderRepository.SearchOrderByUserID(userID)
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	for i := 0; i < len(orders); i++ {
-		err := repository.SearchOrderItens(&orders[i])
+		err := orderRepository.SearchOrderItens(&orders[i])
 		if err != nil {
 			responses.Erro(w, http.StatusInternalServerError, err)
 			return
@@ -185,9 +199,9 @@ func ChangeOrderStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryOrder(db)
+	orderRepository := repositories.NewRepositoryOrder(db)
 
-	if err = repository.ChangeStatus(order); err != nil {
+	if err = orderRepository.ChangeStatus(order); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}

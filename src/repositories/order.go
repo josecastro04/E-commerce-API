@@ -98,7 +98,7 @@ func (o *Order) ShowOrders() ([]models.Order, error) {
 	return orders, nil
 }
 
-func (o *Order) SearchOrderByUserID(userID uint64) ([]models.Order, error) {
+func (o *Order) SearchOrderByUserID(userID string) ([]models.Order, error) {
 	rows, err := o.db.Query("select * from orders where user_id = ?", userID)
 	if err != nil {
 		return nil, err
