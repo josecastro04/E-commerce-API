@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	"io"
 	"net/http"
-	"strconv"
 )
 
 func InsertProduct(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +25,11 @@ func InsertProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = AddProductStripe(&product); err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	db, err := database.ConnectWithDatabase()
 
 	if err != nil {
@@ -33,9 +37,9 @@ func InsertProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryProduct(db)
+	productRepository := repositories.NewRepositoryProduct(db)
 
-	imageID, err := repository.InsertImage(product.Image)
+	imageID, err := productRepository.InsertImage(product.Image)
 
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
@@ -44,7 +48,7 @@ func InsertProduct(w http.ResponseWriter, r *http.Request) {
 
 	product.Image.ImageID = uint64(imageID)
 
-	if err = repository.InsertNewProduct(product); err != nil {
+	if err = productRepository.InsertNewProduct(product); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -55,21 +59,15 @@ func InsertProduct(w http.ResponseWriter, r *http.Request) {
 func ShowProduct(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	productID, err := strconv.ParseUint(params["productID"], 10, 64)
-	if err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
-		return
-	}
-
 	db, err := database.ConnectWithDatabase()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	repository := repositories.NewRepositoryProduct(db)
+	productRepository := repositories.NewRepositoryProduct(db)
 
-	product, err := repository.SearchProductByID(productID)
+	product, err := productRepository.SearchProductByID(params["productID"])
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
@@ -80,12 +78,6 @@ func ShowProduct(w http.ResponseWriter, r *http.Request) {
 
 func ChangePrice(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-
-	productID, err := strconv.ParseUint(params["productID"], 10, 64)
-	if err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
-		return
-	}
 
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -100,15 +92,20 @@ func ChangePrice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = ChangePriceProductStripe(params["productID"], *price); err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	db, err := database.ConnectWithDatabase()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	repository := repositories.NewRepositoryProduct(db)
+	productRepository := repositories.NewRepositoryProduct(db)
 
-	if err = repository.ChangeProductPrice(productID, *price); err != nil {
+	if err = productRepository.ChangeProductPrice(params["productID"], *price); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -119,9 +116,8 @@ func ChangePrice(w http.ResponseWriter, r *http.Request) {
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	productID, err := strconv.ParseUint(params["productID"], 10, 64)
-	if err != nil {
-		responses.Erro(w, http.StatusBadRequest, err)
+	if err := DeleteProductStripe(params["productID"]); err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -131,9 +127,9 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryProduct(db)
+	productRepository := repositories.NewRepositoryProduct(db)
 
-	if err = repository.Delete(productID); err != nil {
+	if err = productRepository.Delete(params["productID"]); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -160,9 +156,9 @@ func UpdateImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository := repositories.NewRepositoryProduct(db)
+	productRepository := repositories.NewRepositoryProduct(db)
 
-	if err = repository.UpdateImage(image); err != nil {
+	if err = productRepository.UpdateImage(image); err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}

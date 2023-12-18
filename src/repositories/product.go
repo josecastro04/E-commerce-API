@@ -34,19 +34,19 @@ func (p *Product) InsertImage(image models.Images) (int64, error) {
 }
 
 func (p *Product) InsertNewProduct(product models.Product) error {
-	statement, err := p.db.Prepare("insert into product (name, description, price, stock, image) values(?, ?, ?, ?)")
+	statement, err := p.db.Prepare("insert into product (id, name, description, price, stock, product_image_id) values(?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(&product.Name, &product.Description, &product.Price, &product.Stock, &product.Image.ImageID); err != nil {
+	if _, err = statement.Exec(&product.ID, &product.Name, &product.Description, &product.Price, &product.Stock, &product.Image.ImageID); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *Product) SearchProductByID(productID uint64) (models.Product, error) {
+func (p *Product) SearchProductByID(productID string) (models.Product, error) {
 	row, err := p.db.Query("select p.*, i.filename, i.path from product p inner join images i on i.image_id = p.product_image_id where p.id = ?", productID)
 	if err != nil {
 		return models.Product{}, err
@@ -62,7 +62,7 @@ func (p *Product) SearchProductByID(productID uint64) (models.Product, error) {
 	return product, nil
 }
 
-func (p *Product) ChangeProductPrice(productID uint64, price float64) error {
+func (p *Product) ChangeProductPrice(productID string, price float64) error {
 	statement, err := p.db.Prepare("update product set price = ? where id = ?")
 	if err != nil {
 		return nil
@@ -76,7 +76,7 @@ func (p *Product) ChangeProductPrice(productID uint64, price float64) error {
 	return nil
 }
 
-func (p *Product) Delete(productID uint64) error {
+func (p *Product) Delete(productID string) error {
 	statement, err := p.db.Prepare("delete from product where id = ?")
 	if err != nil {
 		return err
@@ -97,6 +97,20 @@ func (p *Product) UpdateImage(image models.Images) error {
 	defer statement.Close()
 
 	if _, err = statement.Exec(&image.Filename, &image.Path, &image.ImageID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *Product) DecrementProductStock(orderItem models.OrderItem) error {
+	statement, err := p.db.Prepare("update product set stock = stock - ? where id = ? and stock >= ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err := statement.Exec(&orderItem.Product.ID, &orderItem.Amount); err != nil {
 		return err
 	}
 
