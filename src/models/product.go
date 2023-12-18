@@ -18,7 +18,7 @@ type Images struct {
 }
 
 type Product struct {
-	ID          uint64    `json:"ID"`
+	ID          string    `json:"ID"`
 	Name        string    `json:"Name"`
 	Description string    `json:"Desc"`
 	Price       float64   `json:"Price"`

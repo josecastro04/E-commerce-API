@@ -11,7 +11,7 @@ type OrderItem struct {
 
 type Order struct {
 	OrderID    uint64      `json:"OrderID"`
-	UserID     uint64      `json:"UserID"`
+	UserID     string      `json:"UserID"`
 	OrderItems []OrderItem `json:"OrderItems"`
 	Date       time.Time   `json:"Date"`
 	Status     string      `json:"Status"`
