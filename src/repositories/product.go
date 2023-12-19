@@ -110,7 +110,7 @@ func (p *Product) DecrementProductStock(orderItem models.OrderItem) error {
 	}
 	defer statement.Close()
 
-	if _, err := statement.Exec(&orderItem.Product.ID, &orderItem.Amount); err != nil {
+	if _, err := statement.Exec(&orderItem.Amount, &orderItem.Product.ID, &orderItem.Amount); err != nil {
 		return err
 	}
 
