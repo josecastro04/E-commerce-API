@@ -36,6 +36,13 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 
 	order.UserID = userID
 
+	url, err := CreateNewSessionCheckOut(&order)
+
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	db, err := database.ConnectWithDatabase()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
@@ -70,7 +77,7 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	responses.JSON(w, http.StatusOK, "Order Placed")
+	responses.JSON(w, http.StatusOK, url)
 }
 
 func ShowOrder(w http.ResponseWriter, r *http.Request) {
