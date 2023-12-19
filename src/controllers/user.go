@@ -195,6 +195,11 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = DeleteUserStripe(userID); err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
 	userRepository := repositories.NewRepositoryUser(db)
 
 	if err = userRepository.Delete(userID); err != nil {
