@@ -36,14 +36,22 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 
 	order.UserID = userID
 
-	url, err := CreateNewSessionCheckOut(&order)
-
+	db, err := database.ConnectWithDatabase()
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	db, err := database.ConnectWithDatabase()
+	userRepository := repositories.NewRepositoryUser(db)
+
+	user, err := userRepository.SearchUserByID(order.UserID)
+	if err != nil {
+		responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	url, err := CreateNewSessionCheckOut(&order, &user)
+
 	if err != nil {
 		responses.Erro(w, http.StatusInternalServerError, err)
 		return
