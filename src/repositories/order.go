@@ -27,7 +27,7 @@ func (o *Order) CreateNewOrder(order models.Order) error {
 	return nil
 }
 
-func (o *Order) InsertOrderProducts(orderID uint64, orderProduct models.OrderItem) error {
+func (o *Order) InsertOrderProducts(orderID string, orderProduct models.OrderItem) error {
 	statement, err := o.db.Prepare("insert into order_item (product_id, order_id, amount, price) values(?, ?, ?, ?)")
 	if err != nil {
 		return err
