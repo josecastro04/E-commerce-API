@@ -63,11 +63,18 @@ func (u *User) SearchUserByID(userID string) (models.User, error) {
 	defer row.Close()
 
 	var user models.User
+	var city, country, address, postal_code, state sql.NullString
 	if row.Next() {
-		if err = row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Phone, &user.RoleType, &user.CreatedIn, &user.Address.City, &user.Address.Country,
-			&user.Address.Address, &user.Address.Postal_Code, &user.Address.State); err != nil {
+		if err = row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Name, &user.Phone, &user.RoleType, &user.CreatedIn, &city, &country,
+			&address, &postal_code, &state); err != nil {
 			return models.User{}, err
 		}
+
+		user.Address.City = city.String
+		user.Address.Country = country.String
+		user.Address.Address = address.String
+		user.Address.Postal_Code = postal_code.String
+		user.Address.State = state.String
 	}
 	return user, nil
 }
